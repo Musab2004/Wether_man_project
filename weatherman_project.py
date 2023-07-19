@@ -242,40 +242,44 @@ def bar_graph_weather_report(filtered_df):
 
 
 user_input = sys.argv[2]
-
 directory = sys.argv[3]
 choice = str(sys.argv[1])
 
-num_args = len(sys.argv) - 1
-if num_args !=3:
-    print("invalid input format")
-    sys.exit()
+try:
+    num_args = len(sys.argv) - 1
+    if num_args != 3:
+        raise ValueError("Invalid input format")
 
+    if choice == "-a":
+        check_format_scenario_1(user_input)
+        data_frame = openfolder(directory)
 
-if choice == "-a":
-    check_format_scenario_1(user_input)
-    data_frame = openfolder(directory)
+        data_frame = filter_data_frame(data_frame, user_input)
 
-    data_frame = filter_data_frame(data_frame, user_input)
+        extreme_weather_report_in_year(data_frame)
 
-    extreme_weather_report_in_year(data_frame)
+    elif choice == "-e":
+        check_format_scenario_2_3(user_input)
+        user_input = user_input.replace("/", "-")
 
-elif choice == "-e":
-    check_format_scenario_2_3(user_input)
-    user_input = user_input.replace("/", "-")
+        data_frame = openfile(directory)
 
-    data_frame = openfile(directory)
+        data_frame = filter_data_frame(data_frame, user_input)
 
-    data_frame = filter_data_frame(data_frame, user_input)
+        average_weather_report_in_month(data_frame)
+        
+    elif choice == "-c":
+        check_format_scenario_2_3(user_input)
+        user_input = user_input.replace("/", "-")
+        data_frame = openfile(directory)
+        data_frame = filter_data_frame(data_frame, user_input)
+        bar_graph_weather_report(data_frame)
+        
+    else:
+        raise ValueError("Wrong flag")
 
-    average_weather_report_in_month(data_frame)
-elif choice == "-c":
-    check_format_scenario_2_3(user_input)
-    user_input = user_input.replace("/", "-")
-    data_frame = openfile(directory)
-    data_frame = filter_data_frame(data_frame, user_input)
-    bar_graph_weather_report(data_frame)
-else:
-    print("Wrong flag")
+except ValueError as e:
+    print(str(e))
 
-print()
+except Exception as e:
+    print("An error occurred:", str(e))
