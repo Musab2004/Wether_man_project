@@ -11,26 +11,33 @@ import math
 first_col_name = "Time_Zone"
 
 
-def check_format_Scenario_2_3(user_input):
-    pattern = r"^\d{4}/\d{1,2}$"
-
+def check_format_scenario_2_3(user_input):
+ pattern = r"^\d{4}/\d{1,2}$"
+ try:
     if re.match(pattern, user_input):
         year, month = user_input.split("/")
-        if int(month) <= 12 and int(month) >= 1:
-       
+        if 1 <= int(month) <= 12:
             return str(user_input)
+        else:
+            raise ValueError("Invalid month value.")
+    else:
+        raise ValueError("Invalid date format.")
+ except ValueError as e:
+    print("Error:", str(e))
 
     print(f"Invalid Input.")
     sys.exit()
 
 
-def check_format_Scenario_1(user_input):
-    pattern = r"^\d{4}$"
-
+def check_format_scenario_1(user_input):
+  pattern = r"^\d{4}$"
+  try:
     if re.match(pattern, user_input):
         return str(user_input)
-
-    print(f"Invalid input.")
+    else:
+        raise ValueError("Invalid input.")
+  except ValueError as e:
+    print(str(e))
     sys.exit()
 
 
@@ -68,12 +75,17 @@ def openfile(directory):
 
 
 def check_choice(user_input):
-    if user_input.isdigit() and len(user_input) == 1:
-        if user_input >= "1" and user_input <= "3":
-            return int(user_input)
-
-    print("Invalid input.")
-    sys.exit()
+    try:
+        if user_input.isdigit() and len(user_input) == 1:
+            if "1" <= user_input <= "3":
+                return int(user_input)
+            else:
+                raise ValueError("Invalid input.")
+        else:
+            raise ValueError("Invalid input.")
+    except ValueError as e:
+        print(str(e))
+        sys.exit()
 
 
 def filter_data_frame(appended_df, user_input):
@@ -90,7 +102,7 @@ def filter_data_frame(appended_df, user_input):
     return filtered_df
 
 
-def Extreme_Weather_Report_in_a_year(filtered_df):
+def extreme_weather_report_in_year(filtered_df):
     months_dict = {
         1: "Jan",
         2: "Feb",
@@ -106,76 +118,106 @@ def Extreme_Weather_Report_in_a_year(filtered_df):
         12: "Dec",
     }
 
-    highest_row = filtered_df.loc[filtered_df["Max_TemperatureC"].idxmax()]
-    year, month, day = highest_row[first_col_name].split("-")
-    print(
-        "Highest : ",
-        highest_row["Max_TemperatureC"],
-        "C ",
-        "On ",
-        months_dict[int(month)],
-        day,
-    )
-    highest_row = filtered_df.loc[filtered_df["Min_TemperatureC"].idxmin()]
-    year, month, day = highest_row[first_col_name].split("-")
-    print(
-        "Lowest : ",
-        highest_row["Min_TemperatureC"],
-        "C ",
-        "On ",
-        months_dict[int(month)],
-        day,
-    )
+    highest_row_max_temp= filtered_df.loc[filtered_df["Max_TemperatureC"].idxmax()]
+    try:
+     year, month, day = highest_row_max_temp[first_col_name].split("-")
 
-    highest_row = filtered_df.loc[filtered_df["Max_Humidity"].idxmax()]
-    year, month, day = highest_row[first_col_name].split("-")
+    except ValueError:
+     print("Error: Invalid date format.")
 
-    print(
-        "Humid : ",
-        highest_row["Max_Humidity"],
-        "% ",
-        "On ",
-        months_dict[int(month)],
-        day,
-    )
+    try:
+        print(
+            "Highest: ",
+            highest_row_max_temp["Max_TemperatureC"],
+            "C ",
+            "On ",
+            months_dict[int(month)],
+            day,
+        )
+    except KeyError as e:
+        print("Error: Missing key in the 'highest_row' dictionary.")
+    except ValueError as e:
+        print("Error: Invalid month value.")
+    highest_row_min_temp = filtered_df.loc[filtered_df["Min_TemperatureC"].idxmin()]
+    try:
+     year, month, day = highest_row_min_temp[first_col_name].split("-")
+
+    except ValueError:
+     print("Error: Invalid date format.")
+    try:
+        print(
+            "Lowest: ",
+            highest_row_min_temp["Min_TemperatureC"],
+            "C ",
+            "On ",
+            months_dict[int(month)],
+            day,
+        )
+    except KeyError as e:
+        print("Error: Missing key in the 'highest_row_min_temp' dictionary.")
+    except ValueError as e:
+        print("Error: Invalid month value.")
+
+    highest_row_max_humid = filtered_df.loc[filtered_df["Max_Humidity"].idxmax()]
+    
+    # year, month, day = highest_row[first_col_name].split("-")
+    try:
+     year, month, day = highest_row_max_humid[first_col_name].split("-")
+
+    except ValueError:
+     print("Error: Invalid date format.")
+
+    try:
+        print(
+            "Humid: ",
+            highest_row_max_humid["Max_Humidity"],
+            "% ",
+            "On ",
+            months_dict[int(month)],
+            day,
+        )
+    except KeyError as e:
+        print("Error: Missing key in the 'highest_row_max_humid' dictionary.")
+    except ValueError as e:
+        print("Error: Invalid month value.")
 
 
-def Average_Weathre_Report_in_a_month(filtered_df):
-    Max_temp_mean = filtered_df["Max_TemperatureC"].mean()
-    print("Max temp:", Max_temp_mean, "C")
-    Min_temp_mean = filtered_df["Min_TemperatureC"].mean()
-    print("Min Temp mean :", Min_temp_mean, "C")
+def average_weather_report_in_month(filtered_df):
+    max_temp_mean = filtered_df["Max_TemperatureC"].mean()
+    print("Max temp:", max_temp_mean, "C")
+    min_temp_mean = filtered_df["Min_TemperatureC"].mean()
+    print("Min Temp mean :", min_temp_mean, "C")
 
     humidity = filtered_df["Max_Humidity"].mean()
     print("Humidity Mean: ", humidity, "%")
 
 
-def Bar_Graph_Weather_Report(filtered_df):
-    GST = filtered_df[first_col_name]
-    Max_Temprature = filtered_df["Max_TemperatureC"]
-    Min_Temprature = filtered_df["Min_TemperatureC"]
+def bar_graph_weather_report(filtered_df):
+    time_zone = filtered_df[first_col_name]
+    max_temprature = filtered_df["Max_TemperatureC"]
+    min_temprature = filtered_df["Min_TemperatureC"]
     color_red = "\033[91m"
     color_blue = "\033[94m"
     color_reset = "\033[0m"
-    for i in range(0, len(GST)):
-        print(color_reset + GST[i], end="     ")
+    for i in range(0, len(time_zone)):
+        print(color_reset + time_zone[i], end="     ")
   
-        if math.isnan(Max_Temprature[i]):
+        if math.isnan(max_temprature[i]):
        
             pass
         else:
-            for j in range(0, int(Max_Temprature[i])):
+            for j in range(0, int(max_temprature[i])):
                 print(color_red + "+", end="")
-            print("   ", color_red + str(Max_Temprature[i]), "C", end=" ")
+            print("   ", color_red + str(max_temprature[i]), "C", end=" ")
         print()
-        print(color_reset + GST[i], end="     ")
-        if math.isnan(Max_Temprature[i]):
+        print(color_reset + time_zone[i], end="     ")
+        if math.isnan(max_temprature[i]):
             # print()
             pass
         else:
-            for j in range(0, int(Min_Temprature[i])):
+            for j in range(0, int(min_temprature[i])):
                 print(color_blue + "+", end="")
-            print("   ", color_blue + str(Min_Temprature[i]), "C", end=" ")
+            print("   ", color_blue + str(min_temprature[i]), "C", end=" ")
         print()
 
 
@@ -194,28 +236,28 @@ if num_args !=3:
 
 
 if choice == "-a":
-    check_format_Scenario_1(user_input)
-    df = openfolder(directory)
+    check_format_scenario_1(user_input)
+    data_frame = openfolder(directory)
 
-    df = filter_data_frame(df, user_input)
+    data_frame = filter_data_frame(data_frame, user_input)
 
-    Extreme_Weather_Report_in_a_year(df)
+    extreme_weather_report_in_year(data_frame)
 
 elif choice == "-e":
-    check_format_Scenario_2_3(user_input)
+    check_format_scenario_2_3(user_input)
     user_input = user_input.replace("/", "-")
 
-    df = openfile(directory)
+    data_frame = openfile(directory)
 
-    df = filter_data_frame(df, user_input)
+    data_frame = filter_data_frame(data_frame, user_input)
 
-    Average_Weathre_Report_in_a_month(df)
+    average_weather_report_in_month(data_frame)
 elif choice == "-c":
-    check_format_Scenario_2_3(user_input)
+    check_format_scenario_2_3(user_input)
     user_input = user_input.replace("/", "-")
-    df = openfile(directory)
-    df = filter_data_frame(df, user_input)
-    Bar_Graph_Weather_Report(df)
+    data_frame = openfile(directory)
+    data_frame = filter_data_frame(data_frame, user_input)
+    bar_graph_weather_report(data_frame)
 else:
     print("Wrong flag")
 
