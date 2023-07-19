@@ -12,33 +12,33 @@ first_col_name = "Time_Zone"
 
 
 def check_format_scenario_2_3(user_input):
- pattern = r"^\d{4}/\d{1,2}$"
- try:
-    if re.match(pattern, user_input):
-        year, month = user_input.split("/")
-        if 1 <= int(month) <= 12:
-            return str(user_input)
+    pattern = r"^\d{4}/\d{1,2}$"
+    try:
+        if re.match(pattern, user_input):
+            year, month = user_input.split("/")
+            if 1 <= int(month) <= 12:
+                return str(user_input)
+            else:
+                raise ValueError("Invalid month value.")
         else:
-            raise ValueError("Invalid month value.")
-    else:
-        raise ValueError("Invalid date format.")
- except ValueError as e:
-    print("Error:", str(e))
+            raise ValueError("Invalid date format.")
+    except ValueError as e:
+        print("Error:", str(e))
 
-    print(f"Invalid Input.")
-    sys.exit()
+        print(f"Invalid Input.")
+        sys.exit()
 
 
 def check_format_scenario_1(user_input):
-  pattern = r"^\d{4}$"
-  try:
-    if re.match(pattern, user_input):
-        return str(user_input)
-    else:
-        raise ValueError("Invalid input.")
-  except ValueError as e:
-    print(str(e))
-    sys.exit()
+    pattern = r"^\d{4}$"
+    try:
+        if re.match(pattern, user_input):
+            return str(user_input)
+        else:
+            raise ValueError("Invalid input.")
+    except ValueError as e:
+        print(str(e))
+        sys.exit()
 
 
 def openfolder(directory):
@@ -58,11 +58,13 @@ def openfolder(directory):
                 if i == 0:
                     appended_data_frame = data_frame
                 else:
-                    appended_data_frame = pd.concat([appended_data_frame, data_frame], ignore_index=True)
+                    appended_data_frame = pd.concat(
+                        [appended_data_frame, data_frame], ignore_index=True
+                    )
                 i = i + 1
 
         return appended_data_frame
-    
+
     except FileNotFoundError as e:
         print(str(e))
         sys.exit()
@@ -76,16 +78,16 @@ def openfile(directory):
     try:
         if not os.path.exists(directory):
             raise FileNotFoundError(f"The directory '{directory}' does not exist.")
-        
+
         data_frame = pd.read_csv(directory)
         data_frame.rename(columns={data_frame.columns[0]: "Time_Zone"}, inplace=True)
-        
+
         return data_frame
-    
+
     except FileNotFoundError as e:
         print(str(e))
         sys.exit()
-    
+
     except Exception as e:
         print("An error occurred:", "Wrong Directory")
         sys.exit()
@@ -135,12 +137,12 @@ def extreme_weather_report_in_year(filtered_df):
         12: "Dec",
     }
 
-    highest_row_max_temp= filtered_df.loc[filtered_df["Max_TemperatureC"].idxmax()]
+    highest_row_max_temp = filtered_df.loc[filtered_df["Max_TemperatureC"].idxmax()]
     try:
-     year, month, day = highest_row_max_temp[first_col_name].split("-")
+        year, month, day = highest_row_max_temp[first_col_name].split("-")
 
     except ValueError:
-     print("Error: Invalid date format.")
+        print("Error: Invalid date format.")
 
     try:
         print(
@@ -157,10 +159,10 @@ def extreme_weather_report_in_year(filtered_df):
         print("Error: Invalid month value.")
     highest_row_min_temp = filtered_df.loc[filtered_df["Min_TemperatureC"].idxmin()]
     try:
-     year, month, day = highest_row_min_temp[first_col_name].split("-")
+        year, month, day = highest_row_min_temp[first_col_name].split("-")
 
     except ValueError:
-     print("Error: Invalid date format.")
+        print("Error: Invalid date format.")
     try:
         print(
             "Lowest: ",
@@ -176,13 +178,13 @@ def extreme_weather_report_in_year(filtered_df):
         print("Error: Invalid month value.")
 
     highest_row_max_humid = filtered_df.loc[filtered_df["Max_Humidity"].idxmax()]
-    
+
     # year, month, day = highest_row[first_col_name].split("-")
     try:
-     year, month, day = highest_row_max_humid[first_col_name].split("-")
+        year, month, day = highest_row_max_humid[first_col_name].split("-")
 
     except ValueError:
-     print("Error: Invalid date format.")
+        print("Error: Invalid date format.")
 
     try:
         print(
@@ -218,9 +220,8 @@ def bar_graph_weather_report(filtered_df):
     color_reset = "\033[0m"
     for i in range(0, len(time_zone)):
         print(color_reset + time_zone[i], end="     ")
-  
+
         if math.isnan(max_temprature[i]):
-       
             pass
         else:
             for j in range(0, int(max_temprature[i])):
@@ -238,7 +239,9 @@ def bar_graph_weather_report(filtered_df):
         print()
 
 
-
+num_args = len(sys.argv) - 1
+if num_args != 3:
+    raise ValueError("Invalid input format")
 
 
 user_input = sys.argv[2]
@@ -246,10 +249,6 @@ directory = sys.argv[3]
 choice = str(sys.argv[1])
 
 try:
-    num_args = len(sys.argv) - 1
-    if num_args != 3:
-        raise ValueError("Invalid input format")
-
     if choice == "-a":
         check_format_scenario_1(user_input)
         data_frame = openfolder(directory)
@@ -267,14 +266,14 @@ try:
         data_frame = filter_data_frame(data_frame, user_input)
 
         average_weather_report_in_month(data_frame)
-        
+
     elif choice == "-c":
         check_format_scenario_2_3(user_input)
         user_input = user_input.replace("/", "-")
         data_frame = openfile(directory)
         data_frame = filter_data_frame(data_frame, user_input)
         bar_graph_weather_report(data_frame)
-        
+
     else:
         raise ValueError("Wrong flag")
 
